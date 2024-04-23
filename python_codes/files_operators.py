@@ -96,3 +96,5 @@ def read_files(filename, jinkou_flag=False, community_flag=False):
         return raw_graph, raw_pos, raw_graph.vertex_properties['community']
     else:
         return raw_graph, raw_pos
+
+print("2")
