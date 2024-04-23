@@ -97,4 +97,3 @@ def read_files(filename, jinkou_flag=False, community_flag=False):
     else:
         return raw_graph, raw_pos
 
-print("2")
