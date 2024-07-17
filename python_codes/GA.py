@@ -4,6 +4,7 @@ import math
 from graph_tool import topology, Graph
 from deap import creator
 
+
 def graph_to_individual(graph):
     num_vertices = graph.num_vertices()
     individual = [0] * (num_vertices * num_vertices)
@@ -12,6 +13,7 @@ def graph_to_individual(graph):
         individual[source * num_vertices + target] = 1
         individual[target * num_vertices + source] = 1
     return individual
+
 
 def individual_to_graph(individual, num_vertices):
     graph = Graph(directed=False)
@@ -22,10 +24,12 @@ def individual_to_graph(individual, num_vertices):
                 graph.add_edge(graph.vertex(i), graph.vertex(j))
     return graph
 
+
 def euclidean_distance(pos, i, j):
     x_i, y_i = pos[i]
     x_j, y_j = pos[j]
-    return math.sqrt((x_i - x_j)**2 + (y_i - y_j)**2)
+    return math.sqrt((x_i - x_j) ** 2 + (y_i - y_j) ** 2)
+
 
 def total_euclidean_distance(graph, pos):
     total_distance = 0.0
@@ -35,30 +39,51 @@ def total_euclidean_distance(graph, pos):
             total_distance += euclidean_distance(pos, i, j)
     return total_distance
 
+
 def fitness_function(individual, num_vertices, pos):
     graph = individual_to_graph(individual, num_vertices)
-    return total_euclidean_distance(graph, pos),
+    total_distance = total_euclidean_distance(graph, pos)
+    print(f"Total distance for individual: {total_distance}")  # 调试输出
+    return total_distance,
+
 
 def create_initial_population(graph, pos, pop_size, num_additional_edges):
     population = []
+    num_vertices = graph.num_vertices()
+
     for _ in range(pop_size):
+        # 1. 生成最小生成树 (MST)
         mst, added_edges = create_mst(graph, pos)
+
+        # 2. 在最小生成树基础上添加随机边
         add_random_edges(mst, added_edges, num_additional_edges)
+
+        # 3. 将图转换为个体编码
         individual = graph_to_individual(mst)
-        # 增加多样性：随机翻转一些边
-        for _ in range(num_additional_edges):
-            i, j = random.sample(range(graph.num_vertices()), 2)
-            idx = i * graph.num_vertices() + j
+
+        # 4. 增加多样性：随机翻转一些边
+        additional_random_flips = random.randint(1, num_additional_edges)
+        for _ in range(additional_random_flips):
+            i, j = random.sample(range(num_vertices), 2)
+            idx = i * num_vertices + j
             individual[idx] = 1 - individual[idx]
+
+        # 5. 生成个体并添加到种群中
         population.append(creator.Individual(individual))
+        print(f"Generated individual: {individual}")  # 调试输出
+
     return population
+
 
 def create_mst(graph, pos):
     distance_matrix = calculate_all_distances(graph, pos)
     mst = Graph(directed=False)
     mst.add_vertex(graph.num_vertices())
-    edge_list = [(i, j, distance_matrix[i][j]) for i in range(graph.num_vertices()) for j in range(i + 1, graph.num_vertices())]
+
+    edge_list = [(i, j, distance_matrix[i][j]) for i in range(graph.num_vertices()) for j in
+                 range(i + 1, graph.num_vertices())]
     edge_list.sort(key=lambda x: x[2])
+
     added_edges = set()
     for edge in edge_list:
         if len(added_edges) >= graph.num_vertices() - 1:
@@ -66,20 +91,29 @@ def create_mst(graph, pos):
         u, v, _ = edge
         mst.add_edge(u, v)
         added_edges.add((u, v))
+
         if topology.shortest_distance(mst, source=u, target=v) != 1:
             mst.remove_edge(mst.edge(u, v))
             added_edges.remove((u, v))
+
+    print(f"Generated MST edges: {list(mst.edges())}")  # 调试输出
     return mst, added_edges
+
 
 def add_random_edges(graph, existing_edges, num_edges_to_add):
     num_vertices = graph.num_vertices()
-    while len(existing_edges) < num_vertices - 1 + num_edges_to_add:
+    added_edges = set(existing_edges)
+
+    while len(added_edges) < num_vertices - 1 + num_edges_to_add:
         u, v = random.sample(range(num_vertices), 2)
         if u > v:
             u, v = v, u
-        if (u, v) not in existing_edges:
+        if (u, v) not in added_edges:
             graph.add_edge(u, v)
-            existing_edges.add((u, v))
+            added_edges.add((u, v))
+
+    print(f"Edges after adding random edges: {list(graph.edges())}")  # 调试输出
+
 
 def calculate_all_distances(graph, pos):
     num_vertices = graph.num_vertices()
@@ -89,6 +123,7 @@ def calculate_all_distances(graph, pos):
             distance_matrix[i][j] = euclidean_distance(pos, i, j)
             distance_matrix[j][i] = distance_matrix[i][j]
     return distance_matrix
+
 
 def ensure_edge_count(ind, num_edges):
     current_edges = sum(ind)
@@ -105,6 +140,7 @@ def ensure_edge_count(ind, num_edges):
             ind[index] = 1
     return ind
 
+
 def custom_crossover(ind1, ind2, num_edges=69):
     num_vertices = int(math.sqrt(len(ind1)))
     cx_point1 = random.randint(1, len(ind1) - 2)
@@ -114,6 +150,7 @@ def custom_crossover(ind1, ind2, num_edges=69):
     ind2 = ensure_edge_count(ind2, num_edges)
     return ind1, ind2
 
+
 def custom_mutation(individual, indpb=0.2, num_edges=69):
     num_vertices = int(math.sqrt(len(individual)))
     for i in range(len(individual)):
@@ -121,4 +158,3 @@ def custom_mutation(individual, indpb=0.2, num_edges=69):
             individual[i] = 1 - individual[i]
     individual = ensure_edge_count(individual, num_edges)
     return individual,
-
