@@ -48,14 +48,33 @@ def individual_to_graph(individual, num_vertices, positions):
 
 
 # 定义适应度函数
+
 def evaluate(individual, read_graph, read_pos, edge_weights):
+    global weight_distance  # 使用全局变量权重
+    weight_hops = 1.0 - weight_distance
+
     graph, new_edge_weights = individual_to_graph(individual, read_graph.num_vertices(), read_pos)
     num_edges = graph.num_edges()
+
     if num_edges != read_graph.num_edges():
-        return float('inf'),
+        return float('inf'),  # 如果边数不为文件中边的数量，适应度设为无穷大
+
+    # 计算最短路径
     dist_matrix = shortest_distance(graph, weights=new_edge_weights).get_2d_array(range(graph.num_vertices()))
     total_distance = np.sum(dist_matrix[dist_matrix != np.inf])
-    return total_distance,
+
+    # 计算跳数
+    hop_count_matrix = shortest_distance(graph).get_2d_array(range(graph.num_vertices()))
+    total_hops = np.sum(hop_count_matrix[hop_count_matrix != np.inf])
+
+    # 计算加权适应度
+    fitness_value = weight_distance * total_distance + weight_hops * total_hops
+
+    # 调试信息
+    print(f"总距离: {total_distance}, 总跳数: {total_hops}, 适应度值: {fitness_value}")
+
+    return fitness_value,
+
 
 
 # 自定义交叉操作
@@ -105,3 +124,17 @@ def mutGraph(ind, num_edges):
         ind[j * size + i] = 1
 
     return ind,
+
+def calculate_distance_and_hops(individual, read_graph, read_pos, edge_weights):
+    graph, new_edge_weights = individual_to_graph(individual, read_graph.num_vertices(), read_pos)
+
+    # 计算最短路径
+    dist_matrix = shortest_distance(graph, weights=new_edge_weights).get_2d_array(range(graph.num_vertices()))
+    total_distance = np.sum(dist_matrix[dist_matrix != np.inf])
+
+    # 计算跳数
+    hop_count_matrix = shortest_distance(graph).get_2d_array(range(graph.num_vertices()))
+    total_hops = np.sum(hop_count_matrix[hop_count_matrix != np.inf])
+
+    return total_distance, total_hops
+
