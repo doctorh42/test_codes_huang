@@ -2,7 +2,7 @@
 
 import numpy as np
 import random
-from graph_tool.all import Graph, shortest_distance, min_spanning_tree
+from graph_tool.all import Graph, shortest_distance, min_spanning_tree, shortest_path , all_shortest_paths
 from deap import creator
 
 
@@ -49,29 +49,39 @@ def individual_to_graph(individual, num_vertices, positions):
 
 # 定义适应度函数
 
-def evaluate(individual, read_graph, read_pos, edge_weights):
-    global weight_distance  # 使用全局变量权重
-    weight_hops = 1.0 - weight_distance
+import numpy as np
 
+def evaluate(individual, read_graph, read_pos, edge_weights):
+    weight_distance = 0.5  # 设定距离的权重
+    weight_hops = 1.0 - weight_distance  # 设定跳数的权重
+
+    # 将个体解码为图结构
     graph, new_edge_weights = individual_to_graph(individual, read_graph.num_vertices(), read_pos)
     num_edges = graph.num_edges()
 
-    if num_edges != read_graph.num_edges():
-        return float('inf'),  # 如果边数不为文件中边的数量，适应度设为无穷大
+    if num_edges != read_graph.num_edges():  # 确保边数与原始图一致
+        return float('inf'),  # 如果不一致，设适应度为无穷大
 
-    # 计算最短路径
+    # 计算加权最短路径和
     dist_matrix = shortest_distance(graph, weights=new_edge_weights).get_2d_array(range(graph.num_vertices()))
     total_distance = np.sum(dist_matrix[dist_matrix != np.inf])
 
-    # 计算跳数
-    hop_count_matrix = shortest_distance(graph).get_2d_array(range(graph.num_vertices()))
-    total_hops = np.sum(hop_count_matrix[hop_count_matrix != np.inf])
+    # 使用 all_shortest_paths 计算总跳数
+    total_hops = 0
+    num_vertices = graph.num_vertices()
 
-    # 计算加权适应度
+    for source in range(num_vertices):
+        for target in range(source + 1, num_vertices):
+            if dist_matrix[source][target] != np.inf:  # 确保节点对可达
+                for path in all_shortest_paths(graph, source, target, weights=new_edge_weights):
+                    total_hops += len(path) - 1  # 计算跳数并累加
+                    break  # 只取一条最短路径的跳数
+
+    # 计算适应度值
     fitness_value = weight_distance * total_distance + weight_hops * total_hops
 
     # 调试信息
-    print(f"总距离: {total_distance}, 总跳数: {total_hops}, 适应度值: {fitness_value}")
+    print(f"shortest_distance: {total_distance}，hops: {total_hops}，Fitness: {fitness_value}")
 
     return fitness_value,
 
