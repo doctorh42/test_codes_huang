@@ -151,7 +151,7 @@ def plot_best_network(individual, read_graph, read_pos, filename):
         vertex_size=10,  # 节点大小
         output_size=(1000, 1000)
     )
-    output_path = f"./output5/1500{filename}_best_network.png"
+    output_path = f"./output5/{filename}_best_network.png"
     graph_draw(
         best_graph,
         pos=pos,
@@ -168,7 +168,7 @@ def plot_best_network(individual, read_graph, read_pos, filename):
 
 # 参数配置
 num_generations = 1500
-population_sizes = [100]
+population_sizes = [150]
 selection_ratios = [2 / 3]
 mutation_probs = [0.15]
 progress_bars = {
