@@ -1,4 +1,4 @@
-#%%
+# %%
 import numpy as np
 from graph_tool.all import shortest_distance, graph_draw
 from deap import base, creator, tools, algorithms
@@ -6,12 +6,12 @@ import python_codes.files_operators as fo
 import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from fractions import Fraction
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import matplotlib.cm as cm  # 用于色系映射
 import python_codes.newga_utils as ga  # 调整后的导入路径
 
 # 读取图和位置信息 fukuoka_ascend_1024_rng
-filename1 = "fukuoka_ascend_1024_rng"
+filename1 = "fukuoka_ascend_484_gg"
 read_graph, read_pos = fo.read_files(f"../networks_clusters/{filename1}.net")
 num_edges = read_graph.num_edges()
 
@@ -142,7 +142,7 @@ def plot_best_network(individual, read_graph, read_pos, filename):
         pos[v] = read_pos[int(v)]  # 赋值节点坐标
 
     # 绘制并保存图像
-    output_path = f"./output4/{filename}_best_network.png"
+    output_path = f"./output2/{filename}_best_network.png"
     graph_draw(
         best_graph,
         pos=pos,
@@ -152,18 +152,18 @@ def plot_best_network(individual, read_graph, read_pos, filename):
         vertex_size=10,  # 节点大小
         output_size=(1000, 1000),
         output=output_path,
-        bg_color=(1, 1, 1, 1)  # 背景白色
+
     )
     print(f"最佳个体网络图像已保存为 {output_path}")
 
 
 # 参数配置
-num_generations = 1000
-population_sizes = [150]
-selection_ratios = [2 / 3]
-mutation_probs = [0.15]
+num_generations = 1500
+population_sizes = [100]
+selection_ratios = [1 / 3, 2 / 3]
+mutation_probs = [0.15, 0.3]
 progress_bars = {
-    pop_size: tqdm(total=1 * num_generations, desc=f'Population={pop_size}', position=i, leave=True)
+    pop_size: tqdm(total=4 * num_generations, desc=f'Population={pop_size}', position=i, leave=True)
     for i, pop_size in enumerate(population_sizes)
 }
 
@@ -260,7 +260,7 @@ for metric in ["min", "max", "avg"]:
     plt.ylim(fitness_min, fitness_max)  # 设置统一的 y 轴范围
     plt.legend()
     plt.grid(True)
-    plt.savefig(f"./output4/{filename1}_{metric}_fitness_{num_generations}gens.png")
+    plt.savefig(f"./output2/{filename1}_{metric}_fitness_{num_generations}gens.png")
     plt.show()
 
 # 绘制边总长度的最小、最大和平均值图
@@ -284,5 +284,5 @@ for metric, values in zip(["min", "max", "avg"], [0, 1, 2]):
     plt.ylim(edge_length_min, edge_length_max)  # 设置统一的 y 轴范围
     plt.legend()
     plt.grid(True)
-    plt.savefig(f"./output4/{filename1}_{metric}_edge_length_{num_generations}gens.png")
+    plt.savefig(f"./output2/{filename1}_{metric}_edge_length_{num_generations}gens.png")
     plt.show()
