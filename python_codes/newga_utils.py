@@ -34,6 +34,11 @@ def init_individual(read_graph, edge_weights, num_edges):
 def individual_to_graph(individual, num_vertices, positions):
     graph = Graph(directed=False)
     graph.add_vertex(num_vertices)
+    # 复制顶点属性
+    graph.vertex_properties['number'] = graph.new_vertex_property("int")
+    for i in range(num_vertices):
+        graph.vertex_properties['number'][graph.vertex(i)] = i + 1  # 假设原始编号从 1 开始
+
     new_edge_weights = graph.new_edge_property("double")
     for i in range(num_vertices):
         for j in range(i + 1, num_vertices):
