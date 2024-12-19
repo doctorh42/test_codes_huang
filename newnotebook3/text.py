@@ -169,7 +169,7 @@ def plot_best_network(individual, read_graph, read_pos, filename):
 
 # 参数配置
 num_generations = 1000
-population_sizes = [300]
+population_sizes = [150]
 selection_ratios = [1 / 3]
 mutation_probs = [0.3]
 progress_bars = {
