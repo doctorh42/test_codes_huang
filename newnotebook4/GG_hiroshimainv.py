@@ -10,7 +10,7 @@ import python_codes.newga_utils_2 as ga  # 调整后的导入路径
 from python_codes.files_operators import save_files
 
 # 读取图和位置信息
-filename1 = "fukuoka_ascend_484_gg"
+filename1 = "hiroshima_ascend_484_gg"
 read_graph, read_pos = fo.read_files(f"../networks_clusters/{filename1}.net")
 num_edges = read_graph.num_edges()
 
@@ -160,7 +160,7 @@ def plot_results(shortest_path_sums, total_edge_lengths, min_fitness_values, ori
 
 # 参数配置
 num_generations = 1000
-population_sizes = [300]
+population_sizes = [100]
 selection_ratios = [1 / 3]
 mutation_probs = [0.3]
 progress_bars = {
