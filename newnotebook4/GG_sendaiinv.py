@@ -10,7 +10,7 @@ import python_codes.newga_utils_2 as ga  # 调整后的导入路径
 from python_codes.files_operators import save_files
 
 # 读取图和位置信息
-filename1 = "sendai_ascend_484_gg"
+filename1 = "sendai_ascend_1024_gg"
 read_graph, read_pos = fo.read_files(f"../networks_clusters/{filename1}.net")
 num_edges = read_graph.num_edges()
 
