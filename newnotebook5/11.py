@@ -67,10 +67,10 @@ def generate_complete_graph_and_mst_with_colors(input_net, output_image, output_
     print("Total length of Minimum Spanning Tree (Euclidean distance):", mst_total_length)
 
     # 绘制最小生成树并保存图片
-    graph_draw(mst_graph, mst_pos, vertex_size=10, edge_color='blue', vertex_fill_color=mst_vertex_colors,
-               output_size=(2000, 2000))
-    graph_draw(mst_graph, mst_pos, vertex_size=10, edge_color='blue', vertex_fill_color=mst_vertex_colors,
-               output_size=(2000, 2000), output=output_image)
+    #graph_draw(mst_graph, mst_pos, vertex_size=10, edge_color='blue', vertex_fill_color=mst_vertex_colors,
+    #           output_size=(2000, 2000))
+    graph_draw(mst_graph, mst_pos, vertex_size=8, edge_color='blue', vertex_fill_color=mst_vertex_colors,
+               output_size=(4000, 4000), output=output_image)
     print(f"MST image saved to {output_image}")
 
     # 保存最小生成树为 .net 文件
