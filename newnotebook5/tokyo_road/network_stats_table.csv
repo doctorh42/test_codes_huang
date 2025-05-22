@@ -1,0 +1,4 @@
+Network,N (vertices),E (edges),⟨k⟩ (avg degree),k_max,k_min
+c4ring_simplified_primal.net,32454,32960,2.03,9,1
+tokyo_pop_30000_rng.net,30000,53397,3.56,5,1
+tokyo_pop_30000_gg.net,30000,86093,5.74,10,1
